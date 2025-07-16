@@ -39,7 +39,7 @@ The backend server will be available at http://127.0.0.1:8000
 
 CLI Tool Usage
 Submit a Test Job
-python qgjob.py submit --org-id=qualgent --app-version-id=xyz123 --test=tests/onboarding.spec.js --priority=medium --target=emulator
+python3 qgjob.py submit --org-id=qualgent --app-version-id=xyz123 --test=tests/onboarding.spec.js --target=device
 
 Check Job Status
 python qgjob.py status --job-id=<job_id>
