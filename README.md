@@ -30,4 +30,18 @@ The system supports job submission, status tracking, and scheduling with efficie
 ```bash
 pip install -r requirements.txt
 
+Start Redis Server
+If Redis is installed locally, start it with: redis-server
+
+Run the Backend Server
+uvicorn main:app --reload
+The backend server will be available at http://127.0.0.1:8000
+
+CLI Tool Usage
+Submit a Test Job
+python qgjob.py submit --org-id=qualgent --app-version-id=xyz123 --test=tests/onboarding.spec.js --priority=medium --target=emulator
+
+Check Job Status
+python qgjob.py status --job-id=<job_id>
+
 
