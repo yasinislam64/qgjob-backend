@@ -1,45 +1,90 @@
 # QualGent Backend Coding Challenge
 
-## Overview
-
-This project implements a backend job orchestrator and CLI tool (`qgjob`) for managing AppWright end-to-end test jobs. It allows organizations to submit tests, which are grouped by `app_version_id` and assigned to available devices (emulator, physical device, BrowserStack) to optimize test execution.
-
-The system supports job submission, status tracking, and scheduling with efficient batching to minimize app reinstalls.
+This is a backend service for managing AppWright test submissions. It supports test job queuing, grouping, scheduling, and GitHub Actions integration.
 
 ---
 
-## Tech Stack
+## 🚀 Features
 
-- Backend: FastAPI (Python)  
-- CLI Tool: Python (`qgjob.py`)  
-- Queueing & Storage: Redis  
-- CI Integration: GitHub Actions  
+- Queue and group submitted test jobs
+- Schedule tests based on grouping criteria (e.g. tags, repo)
+- Run and track test jobs
+- RESTful API with endpoints to submit and check job status
+- GitHub Actions integration for automated submissions
 
 ---
 
-## Setup Instructions
+## 🧰 Setup Instructions
 
-### Prerequisites
-
-- Python 3.10+ installed  
-- Redis server installed and running locally (default port 6379)  
-- `pip` package manager  
-
-### Install dependencies
+### 🐳 With Docker
 
 ```bash
-pip install -r requirements.txt
+# Clone the repo
+git clone https://github.com/your-username/qgjob-backend.git
+cd qgjob-backend
 
-Start Redis Server
-If Redis is installed locally, start it with: redis-server
+# Build and run the container
+docker build -t qgjob-backend .
+docker run -p 8000:8000 qgjob-backend
 
-Run the Backend Server
-uvicorn main:app --reload
-The backend server will be available at http://127.0.0.1:8000
+🏗 Architecture Diagram
 
-CLI Tool Usage
-Submit a Test Job
+                        ┌───────────────────────┐
+                        │      GitHub Action    │
+                        └────────────┬──────────┘
+                                     │
+                                     ▼
+                        ┌──────────────────────────┐
+                        │      /submit-job API     │
+                        └────────────┬─────────────┘
+                                     │
+          ┌──────────────────────────┼──────────────────────────┐
+          ▼                          ▼                          ▼
+┌────────────────┐       ┌──────────────────────┐     ┌────────────────────┐
+│  Job Queue     │──────▶│  Grouping Strategy   │────▶│  Scheduler/Runner  │
+└────────────────┘       └──────────────────────┘     └────────────────────┘
+                                                            │
+                                                            ▼
+                                                  ┌────────────────────┐
+                                                  │  Result Collector  │
+                                                  └─────────┬──────────┘
+                                                            │
+                                                            ▼
+                                                ┌──────────────────────┐
+                                                │  /status/{job_id}    │
+                                                └──────────────────────┘
+
+ Grouping & Scheduling Logic
+
+Jobs submitted via /submit-job are:
+
+Queued immediately.
+
+Grouped based on shared attributes like:
+
+Repo name
+
+Test tag
+
+Priority (future feature)
+
+Scheduled in batches using a JobRunner, which:
+
+Picks jobs from the same group
+
+Executes them sequentially or concurrently
+
+Collects output & updates job status
+
+Grouping logic is configurable and modular. Add your own strategies in grouping.py.
+
+✅ End-to-End Test Submission
+
+Start the server:
+uvicorn app.main:app --reload
+
+Submit a test job:
 python3 qgjob.py submit --org-id=qualgent --app-version-id=xyz123 --test=tests/onboarding.spec.js --target=device
 
-Check Job Status
+Check job status:
 python qgjob.py status --job-id=<job_id>
