@@ -41,3 +41,5 @@ def get_status(job_id: str):
 def root():
     return {"message": "AppWright Job Orchestrator is running."}
 
+
+# Trigger action
